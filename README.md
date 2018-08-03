@@ -1,10 +1,14 @@
 # aegisub-pers2subs
+
 [EN]
 Aegisub filter to export actors directly into subtitles
+
 [RU]
 Экспорт говорящих персонажей напрямуяю в субтитры.
 
+
 # usage
+
 [EN]
 1. Move script to folder (blablabla/Aegisub/automation/autoload), or load it directly via Automation menu.
 2. File->Export->Mark checkbox "Персы в сабах"
