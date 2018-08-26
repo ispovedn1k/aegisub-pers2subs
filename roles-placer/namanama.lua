@@ -1,18 +1,16 @@
 script_name="Обзывалка"
 script_description="Назначение ролей"
 script_author="Boris Pavlenko <borpavlenko@ispovedn1k.com>"
-script_version="1.1"
+script_version="1.3"
 formates = "text files (.txt)|*.txt|All Files(.)|*.*"
-gactors = {}
+gactors = {} -- список всех ролей
 
 function process(subtitle, selected, active)
 	local actors = scan_for_actors(subtitle)
 	
 	merge_gactors(actors)
 	
-	display_actors(gactors, subtitle)
-
-	-- aegisub.set_undo_point(script_description)
+	display_actors(actors, subtitle)
 	
     return selected
 end
@@ -41,33 +39,64 @@ function scan_for_actors(subtitle)
 end
 
 
-function display_actors(actors_list, subtitle) 
+function display_actors(actors_list, subtitle, mode) 
 	local cfg = {};
 	local y = 0
+	local x = 0
+	local numlines = math.floor(tablelength(actors_list) / 3)
+	local r = tablelength(actors_list) % 3
+	local counter = 1;
+	local modeBtn = ""
+	
+	if (mode == "More") then 
+		modeBtn = "Less"
+	else
+		mode = "Less"
+		modeBtn = "More"
+	end
 	
 	for actor, voice in pairs(actors_list) do
-		cfg[#cfg+1] = {class = "label", label = "# " .. y+1 .. " ", y = y}
-		cfg[#cfg+1] = {class = "label", label = actor, x = 1, y = y}
-		cfg[#cfg+1] = {class = "edit", name = actor, x = 2, y = y, text = voice}
+		if (y == numlines) then
+			if (r > 0) then
+				r = r-1
+			else
+				y = 0
+				x = x+3
+			end
+		end
+		if (y > numlines) then
+			y = 0
+			x = x+3
+		end
+		cfg[#cfg+1] = {class = "label", label = "# " .. counter .. " ", x = x, y = y}
+		cfg[#cfg+1] = {class = "label", label = actor, x = x+1, y = y}
+		cfg[#cfg+1] = {class = "edit", name = actor, x = x+2, y = y, text = gactors[actor]}
 		y = y+1
+		counter = counter +1
 	end
 	
 	local btn, result = aegisub.dialog.display(
 		cfg,
-		{"Apply", "Open", "Save", "Cancel"}
+		{"Apply", "Open", "Save", "Cancel", modeBtn}
 	)
 	if btn == "Apply" then
 		apply_click(result, subtitle)
 	end
-	if btn == "Open" then
-		open_click(actors_list)
-		merge_gactors(actors_list)
+	if btn == "Open" then	
+		merge_gactors( open_click() )
 		
-		display_actors(gactors, subtitle)
+		display_actors(actors_list, subtitle, mode)
 	end
 	if btn == "Save" then 
 		merge_gactors(result)
-		save_click(result)
+		save_click(gactors)
+	end
+	if btn == "Less" then
+		local l_actors = scan_for_actors(subtitle)
+		display_actors(l_actors, subtitle, "Less")
+	end
+	if btn == "More" then 
+		display_actors(gactors, subtitle, "More")
 	end
 end
 
@@ -111,12 +140,13 @@ function save_click(result)
 end
 
 
-function open_click(actors)
+function open_click()
 	-- @todo проверку на несохранённые данные
 	local filename = aegisub.dialog.open("Select filename to load roles", "roles.txt", "", formates)
+	local actors = {}
 	
 	if not filename then
-		return nil
+		return actors
 	end
 	
 	local f = assert(io.open(filename,"r"))
@@ -156,5 +186,11 @@ function MsgBox(msg)
 	aegisub.dialog.display({{class = "label", label = msg}}, {"Ok"})
 end
 
+
+function tablelength(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
+end
 
 aegisub.register_macro(script_name, script_description, process, validate)
