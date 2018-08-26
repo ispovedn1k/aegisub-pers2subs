@@ -1,7 +1,7 @@
 script_name="Обзывалка"
 script_description="Назначение ролей"
 script_author="Boris Pavlenko <borpavlenko@ispovedn1k.com>"
-script_version="1.3"
+script_version="1.4"
 formates = "text files (.txt)|*.txt|All Files(.)|*.*"
 gactors = {} -- список всех ролей
 
@@ -55,7 +55,11 @@ function display_actors(actors_list, subtitle, mode)
 		modeBtn = "More"
 	end
 	
-	for actor, voice in pairs(actors_list) do
+	local sorted_actors = {}
+	for k in pairs(actors_list) do table.insert(sorted_actors, k) end
+	table.sort(sorted_actors)
+	
+	for _, actor in ipairs(sorted_actors) do
 		if (y == numlines) then
 			if (r > 0) then
 				r = r-1
