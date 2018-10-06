@@ -4,7 +4,7 @@
 Aegisub filter to export actors directly into subtitles
 
 [RU]
-Экспорт говорящих персонажей напрямуяю в субтитры.
+Экспорт говорящих персонажей напрямую в субтитры.
 
 
 # usage
