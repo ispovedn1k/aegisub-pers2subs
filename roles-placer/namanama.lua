@@ -23,14 +23,12 @@ end
 function scan_for_actors(subtitle)
 	local actors = {}
 	local actr_cnt = 0
-	local wl = ""
-
+	
 	for _, line in ipairs(subtitle) do
 		if line.class == "dialogue" and line.actor ~= "" then
 			if not actors[line.actor] then
 				actr_cnt = actr_cnt +1
 				actors[line.actor] = ""
-				wl = wl .. line.actor .. "\r\n"
 			end
 		end
 	end
@@ -110,8 +108,10 @@ function apply_click(result, subtitle)
 	
 	for line_index, line in ipairs(subtitle) do
 		if line.class == "dialogue" and line.actor ~= "" then
-			line.text = "[" .. gactors[line.actor] .. "] " .. line.text
-			subtitle[line_index] = line
+			if gactors[line.actor] ~= "" then
+				line.text = "[" .. gactors[line.actor] .. "] " .. line.text
+				subtitle[line_index] = line
+			end
 		end
 	end
 	
